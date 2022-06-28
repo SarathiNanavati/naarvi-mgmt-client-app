@@ -1,0 +1,13 @@
+.maintable {
+  padding: 0px 5px;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  flex: 1;
+}
+.maintabletitle {
+  padding: 15px 5px;
+}

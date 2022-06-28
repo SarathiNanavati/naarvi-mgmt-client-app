@@ -1,0 +1,21 @@
+.spinner {
+  flex: 1;
+  display: flex;
+  justify-items: stretch;
+  align-items: center;
+}
+
+.spinnerIcon {
+  flex: 1;
+  font-size: 160px;
+  animation: rotateSpinner 2s infinite linear;
+}
+
+@keyframes rotateSpinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}

@@ -1,12 +1,10 @@
-import { useContext } from "react";
-
+import { useDispatch } from "react-redux";
 import classes from "./notification.module.css";
-import { Context as NotificationContext } from "../../context/NotificationContext";
+import { hideNotification } from "../../features/notificationSlice";
 
 function Notification(props) {
-  const { hideNotificationHandler } = useContext(NotificationContext);
-
-  const { title, message, status } = props;
+  const dispatch = useDispatch();
+  const { title, status } = props;
 
   let statusClasses = "";
 
@@ -25,9 +23,8 @@ function Notification(props) {
   const activeClasses = `${classes.notification} ${statusClasses}`;
 
   return (
-    <div className={activeClasses} onClick={hideNotificationHandler}>
+    <div className={activeClasses} onClick={() => dispatch(hideNotification())}>
       <h2>{title}</h2>
-      <p>{message}</p>
     </div>
   );
 }

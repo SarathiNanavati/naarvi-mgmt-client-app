@@ -1,10 +1,10 @@
 import styles from "./spinner.module.css";
-import { ImSpinner6 } from "react-icons/im";
+import { ImSpinner4 } from "react-icons/im";
 
-const Spinner = (props) => {
+const Spinner = () => {
   return (
     <div className={styles.spinner}>
-      <ImSpinner6 className={styles.spinnerIcon} />
+      <ImSpinner4 className={styles.spinnerIcon} />
     </div>
   );
 };

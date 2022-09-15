@@ -1,116 +1,85 @@
-import React, { useContext, useEffect, useState } from "react";
-import Link from "next/link";
-import TableMain from "../ui/tableMain";
-import { Context as InventoryContext } from "../../context/InventoryContext";
-import styles from "./product-details.module.css";
+import { useSelector, useDispatch } from "react-redux";
 import Spinner from "../ui/spinner";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import {
+  getProductsState,
+  getProductsDetail,
+  setFilters,
+  reinitiateState,
+  getProductsByPage,
+} from "../../features/productSlice";
+import { useEffect, useState } from "react";
+import Pagination from "../ui/pagination";
+import TableMain from "../ui/tableMain";
+import config from "../../../application.config";
 
 const ProductDetails = () => {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(200);
-  const [fetchDataFlag, setFetchDataFlag] = useState(true);
-  const [allPageReceived, setAllPageReceived] = useState(false);
-
-  const { state, getAllProductsHandler } = useContext(InventoryContext);
-  const [productsData, setProductsData] = useState([]);
-  const filteredData = [];
-  const [filterCondition, setfilterCondition] = useState([]);
+  const dispatch = useDispatch();
+  const productState = useSelector(getProductsState);
+  let headerDataSet = config.inventory.headerDataSet;
+  let searchFieldHeaderSet = config.inventory.searchFieldHeaderSet;
+  const filters = productState.filters;
+  const filterDataSet = useSelector(getProductsByPage);
 
   useEffect(() => {
-    if (fetchDataFlag && !allPageReceived) {
-      getProductDetails();
-      setFetchDataFlag(false);
-    }
-  }, [page, limit]);
+    dispatch(getProductsDetail({ page: 1 }));
+  }, []);
 
-  const getProductDetails = async () => {
-    const responseData = await getAllProductsHandler({ page, limit });
-    if (responseData.length < limit) setAllPageReceived(true);
-    setProductsData([...productsData, ...responseData]);
+  const onPageClickHandler = (pageNumber) => {
+    dispatch(getProductsDetail({ page: pageNumber }));
   };
 
-  const onChangeHandler = (e) => {
-    // const tempFilterCondition = { ...filterCondition };
-    // tempFilterCondition[e.target.id] = e.target.value;
-    // setfilterCondition({ ...tempFilterCondition });
-    // if (Object.keys(tempFilterCondition).length > 0) {
-    //   let newProductData = [...productsData];
-    //   Object.keys(tempFilterCondition).map((key) => {
-    //     newProductData = newProductData.filter((record) => {
-    //       return record[key]
-    //         .toUpperCase()
-    //         .includes(tempFilterCondition[key].toUpperCase());
-    //     });
-    //     setFilteredData(newProductData);
-    //   });
-    // }
+  const SearchHandler = (e) => {
+    dispatch(reinitiateState());
+    dispatch(setFilters({ ...filters, [e.target.id]: e.target.value }));
+    dispatch(getProductsDetail({ page: 1 }));
   };
 
-  const onPageIncrement = () => {
-    console.log("mod", productsData.length % page);
-    if (!allPageReceived) {
-      setPage(page + 1);
-    } else if (page + 1 > productsData.length % page) {
-      ///// pending task. tomorrow start from here.
-      setPage(page + 1);
-    }
-
-    if ((page + 1) * limit > productsData.length) {
-      setFetchDataFlag(true);
-    }
+  const onSearchBadgeHandler = (targetName) => {
+    dispatch(reinitiateState());
+    dispatch(setFilters({ ...filters, [targetName]: "" }));
+    dispatch(getProductsDetail({ page: 1 }));
   };
 
-  const onPageDecrement = () => {
-    if (page - 1 > 0) {
-      setPage(page - 1);
-      setFetchDataFlag(false);
-    }
-  };
+  if (productState.status === "processing" || productState.status === "idle")
+    return <Spinner />;
 
-  if (!productsData || productsData.length === 0) return <Spinner />;
-
-  filteredData = productsData.filter(
-    (value, index) => index >= (page - 1) * limit && index <= page * limit - 1
-  );
-
-  let headerDataSet = [];
-  productsData.map((record) => {
-    Object.keys(record).map((header) => {
-      if (
-        header !== "stockUpdateHistory" &&
-        header !== "vendorId" &&
-        header !== "stockBatch" &&
-        header !== "vendorFullName"
-      )
-        headerDataSet[header] = header;
-    });
-  });
+  // let record = productState.products[0];
+  // Object.keys(record).map((header) => {
+  //   if (
+  //     header !== "stockUpdateHistory" &&
+  //     header !== "vendorId" &&
+  //     header !== "vendorFullName"
+  //   )
+  //     headerDataSet.push({ [header]: header });
+  //   if (
+  //     header === "comment" ||
+  //     header === "productSku" ||
+  //     header === "stockQuantity" ||
+  //     header === "stockUnitPrice" ||
+  //     header === "vendorName"
+  //   )
+  //     searchFieldHeaderSet.push(header);
+  // });
 
   return (
     <>
+      <h1>Inventory</h1>
+
       <TableMain
-        headerDataSet={headerDataSet}
-        dataSet={filteredData}
-        title='Inventory/Product Details'
-        onChangeHandler={onChangeHandler}
+        headerList={headerDataSet}
+        dataSet={filterDataSet}
+        searchFieldHeaderList={searchFieldHeaderSet}
+        onSearchHandler={SearchHandler}
+        searchFilterDetails={filters}
+        onSearchBadgeHandler={onSearchBadgeHandler}
       />
-      <br />
-      <table>
-        <tr>
-          <td className={styles.actions}>
-            <a onClick={onPageDecrement}>
-              <IoIosArrowBack />
-            </a>
-          </td>
-          <td className={styles.actionPageNumber}>{page}</td>
-          <td className={styles.actions}>
-            <a onClick={onPageIncrement}>
-              <IoIosArrowForward />
-            </a>
-          </td>
-        </tr>
-      </table>
+
+      <Pagination
+        rangeLimit={5}
+        pageNumber={productState.currentPage}
+        totalPages={productState.totalPages}
+        onClickHandler={onPageClickHandler}
+      />
     </>
   );
 };

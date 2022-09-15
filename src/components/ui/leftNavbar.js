@@ -1,43 +1,44 @@
-import React, { useContext } from "react";
+import React from "react";
+import { useDispatch } from "react-redux";
 import styles from "../../../styles/Home.module.css";
 import { MdDashboard, MdInventory, MdSettings, MdLogout } from "react-icons/md";
 import { FaTruckMoving } from "react-icons/fa";
-
+import { signOut } from "../../features/usersSlice";
+import { hideFrameHandler } from "../../features/layoutsSlice";
+import { showNotification } from "../../features/notificationSlice";
 import Link from "next/link";
 import Image from "next/image";
-import { Context as UserContext } from "../../context/UserContext";
-import { Context as NotificationContext } from "../../context/NotificationContext";
-import { Context as LayoutContext } from "../../context/LayoutContext";
 
 const LeftNavBar = () => {
-  const { signout } = useContext(UserContext);
-  const { showNotificationHandler, hideNotificationHandler } =
-    useContext(NotificationContext);
-  const { hideFrameHandler } = useContext(LayoutContext);
+  const dispatch = useDispatch();
 
-  const signOutHandle = async () => {
-    showNotificationHandler({
-      title: "Signing-Out Progressing",
-      status: "pending",
-      message: "",
-    });
+  const signOutHandle = () => {
+    dispatch(
+      showNotification({
+        title: "Signing-Out Progressing",
+        status: "pending",
+      })
+    );
 
-    const isLogoutSuccessful = await signout();
-
-    if (isLogoutSuccessful) {
-      showNotificationHandler({
-        title: "Signed-Out Successful",
-        status: "success",
-        message: "",
+    dispatch(signOut())
+      .unwrap()
+      .then(() => {
+        dispatch(
+          showNotification({
+            title: "Signed-Out Successful",
+            status: "success",
+          })
+        );
+        dispatch(hideFrameHandler());
+      })
+      .catch(() => {
+        dispatch(
+          showNotification({
+            title: "Signning-Out Failed",
+            status: "error",
+          })
+        );
       });
-      hideFrameHandler();
-    } else {
-      showNotificationHandler({
-        title: "Signning-Out Failed",
-        status: "error",
-        message: "",
-      });
-    }
   };
 
   return (

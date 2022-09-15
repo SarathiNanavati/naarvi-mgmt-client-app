@@ -34,7 +34,6 @@ const getAllSuppliersHandler = (dispatch) => {
   return async () => {
     try {
       const { data: response } = await axios.post("/suppliers");
-      //   console.log(response);
       dispatch({
         store: "supplier",
         type: "update-suppliers",
@@ -57,7 +56,6 @@ const getAllProductsHandler = (dispatch) => {
     try {
       const url = `/products?page=${page}&limit=${limit}`;
       const { data: response } = await axios.post(url);
-      console.log("products", response);
       dispatch({
         store: "inventory",
         type: "update-products",

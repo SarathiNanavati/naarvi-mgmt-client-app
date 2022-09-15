@@ -1,55 +1,58 @@
-import React from "react";
-import { useContext, useEffect, useRef, useState } from "react";
-import { Context as NotificationContext } from "../../context/NotificationContext";
-import { Context as UserContext } from "../../context/UserContext";
+import { useDispatch } from "react-redux";
+import { useRef } from "react";
 import { useRouter } from "next/router";
-import { Context as LayoutContext } from "../../context/LayoutContext";
 import styles from "./auth.module.css";
+import { signIn } from "../../features/usersSlice";
+import { showFrameHandler } from "../../features/layoutsSlice";
+import { showNotification } from "../../features/notificationSlice";
 
 const AuthForm = () => {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
-  const { signin } = useContext(UserContext);
-  const { showNotificationHandler, hideNotificationHandler } =
-    useContext(NotificationContext);
+  const dispatch = useDispatch();
   const router = useRouter();
-  const { showFrameHandler } = useContext(LayoutContext);
 
   async function submitHandler(event) {
     event.preventDefault();
 
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
-    console.log(enteredEmail, enteredPassword);
 
-    showNotificationHandler({
-      title: "Sign-In in progress",
-      status: "pending",
-      message: "",
-    });
+    dispatch(
+      showNotification({
+        title: "Sign-In in progress",
+        status: "pending",
+      })
+    );
 
-    const isLoginSuccess = await signin({
-      email: enteredEmail,
-      password: enteredPassword,
-    });
+    dispatch(
+      signIn({
+        email: enteredEmail,
+        password: enteredPassword,
+      })
+    )
+      .unwrap()
+      .then(() => {
+        dispatch(
+          showNotification({
+            title: "Sign-In Successful",
+            status: "success",
+          })
+        );
 
-    if (isLoginSuccess) {
-      showNotificationHandler({
-        title: "Sign-In Successful",
-        status: "success",
-        message: "",
-      });
-      router.push("/dash");
-      showFrameHandler();
-    } else {
-      showNotificationHandler({
-        title: "Sign-In Failed",
-        status: "error",
-        message: "",
-      });
-    }
-    // console.log(response);
+        router.push("/dash");
+        dispatch(showFrameHandler());
+      })
+      .catch(() =>
+        dispatch(
+          showNotification({
+            title: "Sign-In Failed",
+            status: "error",
+          })
+        )
+      );
   }
+
   return (
     <div className={styles.formcontainer}>
       <h1>Login</h1>

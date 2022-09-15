@@ -14,13 +14,10 @@
   box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.2);
 
   animation-name: notification;
-  animation-duration: 5s;
+  animation-duration: 4s;
   animation-iteration-count: 1;
   animation-timing-function: ease-in-out;
-
-  /* visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.2s, visibility 0.2s; */
+  animation-fill-mode: forwards;
 }
 
 @keyframes notification {
@@ -29,19 +26,9 @@
     opacity: 0;
     bottom: 0rem;
   }
-  5% {
+  20% {
     visibility: visible;
     opacity: 1;
-    bottom: 1rem;
-  }
-  70% {
-    visibility: visible;
-    opacity: 1;
-    bottom: 1rem;
-  }
-  100% {
-    visibility: hidden;
-    opacity: 0;
     bottom: 1rem;
   }
 }

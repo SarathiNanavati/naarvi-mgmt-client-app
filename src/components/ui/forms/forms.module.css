@@ -1,0 +1,122 @@
+.form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 800px;
+  background-color: #eff0f1;
+  border-radius: 10px;
+  border: 1px solid #999;
+  margin-top: auto;
+  margin-bottom: auto;
+  min-width: 400px;
+}
+
+.formHeader {
+  padding: 10px 50px 10px 10px;
+  border-bottom: 2px solid #cccccc;
+}
+
+.formHeader h1 {
+  font-size: 28px;
+  text-align: center;
+  color: #666;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.formGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 10px 5px;
+}
+
+.formGroup > label {
+  color: #1bba93;
+  font-size: 17px;
+  font-weight: 500;
+  padding-bottom: 3px;
+}
+
+.formGroup > input[type="text"],
+.formGroup > input[type="email"],
+.formGroup > input[type="password"],
+.formGroup > select,
+.formGroup > textarea {
+  font-size: 18px;
+  height: 34px;
+  padding-left: 10px;
+  padding-right: 10px;
+  color: #666;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  background: white;
+  outline: none;
+}
+.formGroup > textarea {
+  resize: none;
+  height: 80px;
+}
+
+.formGroup > span {
+  font-size: 12px;
+  padding: 3px;
+  display: none;
+  /* position: absolute; */
+  background-color: rgb(243, 75, 75);
+  border-radius: 3px;
+  color: #fff;
+  padding: 5px;
+  text-decoration: none;
+  z-index: 10;
+  /* margin: 57px 20px 0px 0px; */
+
+  animation-name: errorMessagePopUp;
+  animation-duration: 1s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+.formGroup > input:invalid[focused="true"] {
+  border: 2px solid red;
+}
+
+.formGroup > input:valid {
+  border: 2px solid green;
+}
+
+.formGroup > input:invalid[focused="true"] ~ span {
+  display: block;
+}
+
+@keyframes errorMessagePopUp {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.formBody {
+  background: white;
+  padding: 5px 10px;
+}
+
+.formFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 15px;
+  border-top: 2px solid #cccccc;
+}
+
+@media only screen and (max-width: 500px) {
+  .row {
+    flex-direction: column;
+  }
+}

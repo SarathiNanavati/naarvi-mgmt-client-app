@@ -1,0 +1,23 @@
+.pagerClass {
+  display: block;
+}
+
+.pagerClass > td {
+  width: 40px;
+  padding: 5px;
+  height: 20px;
+  /* background-color: pink; */
+}
+.pagerClass > td > button {
+  cursor: pointer;
+  font: inherit;
+  color: white;
+  background-color: #666;
+  border: 1px solid white;
+  border-radius: 40px;
+  padding: 0.5rem 1rem;
+}
+
+.pagerClass > td > button.buttonActive {
+  background-color: #999;
+}

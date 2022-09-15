@@ -1,25 +1,52 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useEffect } from "react";
 import { useRouter } from "next/router";
 import Notification from "../ui/notification";
-import { Context as NotificationContext } from "../../context/NotificationContext";
-import { Context as UserContext } from "../../context/UserContext";
-import { Context as LayoutContext } from "../../context/LayoutContext";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  tryLocalSignin,
+  getUserDetails,
+  resetStatus,
+} from "../../features/usersSlice";
+import {
+  showFrameHandler,
+  hideFrameHandler,
+} from "../../features/layoutsSlice";
+import { hideNotification } from "../../features/notificationSlice";
 import LeftNavBar from "../ui/leftNavbar";
 import Header from "../ui/header";
 import ContentArea from "../ui/content";
+import Modal from "../ui/modal";
+import SupplierForm from "../supplier/supplierForm";
 
 const DefaultLayout = (props) => {
-  const { state: notificationState, hideNotificationHandler } =
-    useContext(NotificationContext);
-  const { tryLocalSignin } = useContext(UserContext);
-  const {
-    state: showFrameState,
-    showFrameHandler,
-    hideFrameHandler,
-  } = useContext(LayoutContext);
-
-  const activeNotification = notificationState.notificationData;
+  const showFrame = useSelector((state) => state.layouts.showFrame);
+  const { showModal, modalChildrenName, propertyPayload } = useSelector(
+    (state) => state.modals
+  );
+  const modalChildren =
+    modalChildrenName === "supplierForm" ? (
+      <SupplierForm {...propertyPayload} />
+    ) : (
+      <h1>No Modal Children Found</h1>
+    );
+  const activeNotification = useSelector((state) => state.notifications);
+  const dispatch = useDispatch();
   const router = useRouter();
+
+  useEffect(() => {
+    dispatch(resetStatus());
+    dispatch(tryLocalSignin())
+      .unwrap()
+      .then(() => {
+        if (router.pathname === "/") router.push("/dash");
+        router.push(router.pathname);
+        dispatch(showFrameHandler());
+      })
+      .catch(() => {
+        router.push("/");
+        dispatch(hideFrameHandler());
+      });
+  }, []);
 
   useEffect(() => {
     if (
@@ -28,34 +55,22 @@ const DefaultLayout = (props) => {
         activeNotification.status === "error")
     ) {
       const timer = setTimeout(() => {
-        hideNotificationHandler();
-      }, 4000);
+        dispatch(hideNotification());
+      }, 3000);
 
       return () => {
         clearTimeout(timer);
       };
     }
-
-    const tryAutoLogin = async () => {
-      const isLoginSuccessful = await tryLocalSignin();
-      if (!isLoginSuccessful) {
-        router.push("/");
-        hideFrameHandler();
-      } else {
-        if (router.pathname === "/") router.push("/dash");
-        router.push(router.pathname);
-        showFrameHandler();
-      }
-    };
-    tryAutoLogin();
-  }, []);
+  }, [activeNotification.status]);
 
   return (
     <Fragment>
-      {showFrameState.showFrame ? <LeftNavBar /> : ""}
-      {showFrameState.showFrame ? <Header /> : ""}
+      {showFrame ? <LeftNavBar /> : ""}
+      {showFrame ? <Header /> : ""}
       <ContentArea title='Dashboard'>{props.children}</ContentArea>
-      {activeNotification && (
+      {showModal && <Modal>{modalChildren}</Modal>}
+      {activeNotification && activeNotification.status !== "" && (
         <Notification
           title={activeNotification.title}
           status={activeNotification.status}

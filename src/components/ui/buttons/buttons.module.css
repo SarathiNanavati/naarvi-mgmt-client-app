@@ -1,0 +1,37 @@
+.btn {
+  padding: 10px 20px;
+  background-color: #58a5f0;
+  font-size: 16px;
+  width: 50%;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #0277bd;
+}
+
+@media only screen and (max-width: 500px) {
+  .btn {
+    flex: 1;
+  }
+}
+
+.spinnerIcon {
+  flex: 1;
+  font-size: 16px;
+  color: white;
+  animation: rotateSpinner 2s infinite linear;
+}
+
+@keyframes rotateSpinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}

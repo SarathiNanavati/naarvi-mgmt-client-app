@@ -1,21 +1,25 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import TableMain from "../ui/tableMain";
-import { Context as InventoryContext } from "../../context/InventoryContext";
+import {
+  getAllSuppliersDetail,
+  getSuppliers,
+} from "../../features/supplierSlice";
+import { showModalHandler } from "../../features/modalSlice";
 import Spinner from "../ui/spinner";
+import config from "../../../application.config";
+import { MdClose, MdEdit } from "react-icons/md";
+import SupplierForm from "./supplierForm";
 
 const SupplierDetails = () => {
-  const { getAllSuppliersHandler } = useContext(InventoryContext);
-  const [suppliersData, setSuppliersData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [filterCondition, setfilterCondition] = useState([]);
+  const dispatch = useDispatch();
+  const suppliersData = useSelector(getSuppliers);
+  const filteredData = suppliersData;
+  console.log("suppliersData", suppliersData);
 
   useEffect(() => {
-    const getSupplierDetails = async () => {
-      const responseData = await getAllSuppliersHandler();
-      setFilteredData(responseData);
-      setSuppliersData(responseData);
-    };
-    getSupplierDetails();
+    if (!suppliersData || suppliersData.length === 0)
+      dispatch(getAllSuppliersDetail());
   }, []);
 
   // table search
@@ -33,25 +37,51 @@ const SupplierDetails = () => {
             .toUpperCase()
             .includes(tempFilterCondition[key].toUpperCase());
         });
-        setFilteredData(newSupplierData);
+        filteredData = [...newSupplierData];
       });
     }
   };
 
   if (!suppliersData || suppliersData.length === 0) return <Spinner />;
 
-  let headerDataSet = [];
-  const tempDataSet = suppliersData.map((record) => Object.keys(record));
-  tempDataSet.map((record) => {
-    Object.values(record).map((header) => (headerDataSet[header] = header));
-  });
+  let headerDataSet = config.supplier.headerDataSet;
+  // const tempDataSet = suppliersData.map((record) => Object.keys(record));
+  // tempDataSet.map((record) => {
+  //   Object.values(record).map((header) => (headerDataSet[header] = header));
+  // });
+  // console.log(headerDataSet);
+
+  const suppliersActions = [
+    {
+      actionJsx: <MdEdit />,
+      actionHandler: (id) => {
+        console.log("Edit", id);
+        dispatch(
+          showModalHandler({
+            modalChildrenName: "supplierForm",
+            propertyPayload: {
+              supplierId: id,
+              formMode: "edit",
+            },
+          })
+        );
+      },
+    },
+    {
+      actionJsx: <MdClose />,
+      actionHandler: (id) => {
+        console.log("Delete", id);
+      },
+    },
+  ];
 
   return (
     <TableMain
-      headerDataSet={headerDataSet}
+      headerList={headerDataSet}
       dataSet={filteredData}
       title='Supplier Data'
       onChangeHandler={onChangeHandler}
+      actions={suppliersActions}
     />
   );
 };

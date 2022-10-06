@@ -26,5 +26,4 @@ const modalSlice = createSlice({
 
 export const { showModalHandler, hideModalHandler } = modalSlice.actions;
 
-// export modalSlice.reducer;
 export default modalSlice.reducer;
